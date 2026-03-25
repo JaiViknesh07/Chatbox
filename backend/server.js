@@ -7,6 +7,7 @@ import AuthRoute from "./routes/AuthRoute.js";
 import MessageRoute from "./routes/MessageRoute.js";
 import mongoose from "mongoose";
 import { initSocket } from "./socket/socket.js";
+import path from "path";
 
 configDotenv();
 
@@ -28,6 +29,16 @@ app.use(express.json());
 
 app.use("/api/auth", AuthRoute);
 app.use("/api/messages", MessageRoute);
+
+const __dirname = path.resolve();
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "frontend", "dist")));
+
+// Catch all routes and serve React app
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+});
 
 // socketio Logic
 initSocket(io);
