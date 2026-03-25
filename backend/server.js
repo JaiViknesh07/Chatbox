@@ -16,7 +16,8 @@ const server = http.createServer(app);
 // Initialize socket
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", methods: ["GET", "POST"]
+    origin: "*",
+    methods: ["GET", "POST"],
   },
 });
 
@@ -31,13 +32,17 @@ app.use("/api/messages", MessageRoute);
 // socketio Logic
 initSocket(io);
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log(`MongoDB Connected successfully`);
+async function startServer() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB Connected successfully");
 
     server.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
     });
-  })
-  .catch((error) => console.error(error.message));
+  } catch (error) {
+    console.error("DB Connection Failed:", error.message);
+  }
+}
+
+startServer();
